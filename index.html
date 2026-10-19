@@ -1,434 +1,355 @@
 <!DOCTYPE html>
-<html lang="ru" class="dark">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>БНТУ 10608126 — Расписание</title>
-
-    <!-- Telegram WebApp SDK -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Расписание | Группа 10608126</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-    <!-- Font: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif']
-                    },
-                    colors: {
-                        brandBg: '#090a0f',
-                        brandCard: 'rgba(255, 255, 255, 0.03)',
-                        brandCardBorder: 'rgba(255, 255, 255, 0.08)',
-                        brandGreen: '#059669',
-                        brandGreenDark: '#047857',
-                        brandGreenGlow: 'rgba(5, 150, 105, 0.18)',
-                        brandTextPrimary: '#f8fafc',
-                        brandTextMuted: '#94a3b8'
-                    }
-                }
-            }
-        }
-    </script>
-
     <style>
+        :root {
+            --bg-color: #000000;
+            --card-bg: rgba(20, 35, 25, 0.4);
+            --card-border: rgba(30, 75, 45, 0.5);
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --emerald-accent: #0f3d24;
+            --emerald-glow: #1b5e3a;
+        }
+
         * {
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Times New Roman', Times, serif, sans-serif;
         }
 
         body {
-            background-color: #090a0f;
-            color: #f8fafc;
-            font-family: 'Inter', sans-serif;
-            background-image: 
-                radial-gradient(circle at 15% 15%, rgba(5, 150, 105, 0.07) 0%, transparent 40%),
-                radial-gradient(circle at 85% 70%, rgba(5, 150, 105, 0.05) 0%, transparent 50%);
-            background-attachment: fixed;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 16px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        /* Glassmorphic card styling */
-        .glass-card {
-            background: rgba(20, 24, 33, 0.6);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        .container {
+            width: 100%;
+            max-width: 480px;
         }
 
-        .glass-card-emerald {
-            background: rgba(4, 120, 87, 0.12);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(5, 150, 105, 0.3);
-            border-radius: 16px;
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-top: 10px;
         }
 
-        .glass-button {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            color: #94a3b8;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .glass-button.active {
-            background: #059669;
-            border-color: #10b981;
+        .group-title {
+            font-size: 26px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
             color: #ffffff;
-            box-shadow: 0 4px 20px rgba(5, 150, 105, 0.35);
+            text-shadow: 0 0 15px rgba(27, 94, 58, 0.4);
         }
 
-        .pill-day {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            color: #94a3b8;
-            transition: all 0.2s ease;
+        .group-subtitle {
+            font-size: 15px;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
         }
 
-        .pill-day.active {
-            background: rgba(5, 150, 105, 0.2);
-            border-color: #059669;
+        /* Дни недели (табы) */
+        .days-slider {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+            scrollbar-width: none;
+        }
+        .days-slider::-webkit-scrollbar {
+            display: none;
+        }
+
+        .day-tab {
+            background: rgba(15, 61, 36, 0.25);
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .day-tab.active {
+            background: var(--emerald-glow);
             color: #ffffff;
-            font-weight: 600;
+            border-color: #2e8b57;
+            box-shadow: 0 0 12px rgba(27, 94, 58, 0.5);
         }
 
-        /* Subtle scrollbar */
-        ::-webkit-scrollbar { display: none; }
+        /* Карточки расписания */
+        .schedule-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .lesson-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 14px 16px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .lesson-card:hover {
+            border-color: #2e8b57;
+        }
+
+        .lesson-time {
+            font-size: 14px;
+            color: #79c0ff;
+            margin-bottom: 6px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .lesson-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: #f0f6fc;
+        }
+
+        .lesson-details {
+            font-size: 14px;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .subgroup-tag {
+            display: inline-block;
+            background: rgba(27, 94, 58, 0.4);
+            border: 1px solid rgba(46, 139, 87, 0.4);
+            color: #a3d9c9;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            width: fit-content;
+        }
+
+        .no-classes {
+            text-align: center;
+            color: var(--text-muted);
+            margin-top: 40px;
+            font-size: 18px;
+            font-style: italic;
+        }
+
+        .day-content {
+            display: none;
+        }
+
+        .day-content.active {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
-<body class="min-h-screen p-4 pb-12 antialiased">
+<body>
 
-    <div class="max-w-md mx-auto space-y-5">
-
-        <!-- Elegant Minimalist Header -->
-        <header class="glass-card p-5 flex items-center justify-between">
-            <div>
-                <div class="flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span class="text-xs uppercase tracking-widest text-brandTextMuted font-medium">БНТУ • ЭФ</span>
-                </div>
-                <h1 class="text-xl font-bold text-white tracking-tight mt-0.5">Группа 10608126</h1>
-            </div>
-            
-            <div id="current-week-indicator" class="text-xs font-semibold px-3 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-500/30 text-emerald-300">
-                2 неделя
-            </div>
+    <div class="container">
+        <header>
+            <div class="group-title">Группа 10608126</div>
+            <div class="group-subtitle">Энергетический факультет • БНТУ</div>
         </header>
 
-        <!-- Segmented Week Switcher -->
-        <div class="glass-card p-1.5 grid grid-cols-2 gap-1.5">
-            <button id="btn-week-1" onclick="selectWeek(1)" class="glass-button py-2.5 px-4 rounded-xl text-sm font-medium text-center">
-                1 неделя
-            </button>
-            <button id="btn-week-2" onclick="selectWeek(2)" class="glass-button py-2.5 px-4 rounded-xl text-sm font-medium text-center">
-                2 неделя
-            </button>
+        <!-- Переключатель дней -->
+        <div class="days-slider" id="daysSlider">
+            <div class="day-tab active" onclick="switchDay('mon', this)">Понедельник</div>
+            <div class="day-tab" onclick="switchDay('tue', this)">Вторник</div>
+            <div class="day-tab" onclick="switchDay('wed', this)">Среда</div>
+            <div class="day-tab" onclick="switchDay('thu', this)">Четверг</div>
+            <div class="day-tab" onclick="switchDay('fri', this)">Пятница</div>
+            <div class="day-tab" onclick="switchDay('sat', this)">Суббота</div>
         </div>
 
-        <!-- Days Navigation Bar -->
-        <div class="grid grid-cols-6 gap-1.5">
-            <button onclick="selectDay(0)" id="day-pill-0" class="pill-day py-3 rounded-xl text-xs text-center transition-all">
-                Пн
-            </button>
-            <button onclick="selectDay(1)" id="day-pill-1" class="pill-day py-3 rounded-xl text-xs text-center transition-all">
-                Вт
-            </button>
-            <button onclick="selectDay(2)" id="day-pill-2" class="pill-day py-3 rounded-xl text-xs text-center transition-all">
-                Ср
-            </button>
-            <button onclick="selectDay(3)" id="day-pill-3" class="pill-day py-3 rounded-xl text-xs text-center transition-all">
-                Чт
-            </button>
-            <button onclick="selectDay(4)" id="day-pill-4" class="pill-day py-3 rounded-xl text-xs text-center transition-all">
-                Пт
-            </button>
-            <button onclick="selectDay(5)" id="day-pill-5" class="pill-day py-3 rounded-xl text-xs text-center transition-all">
-                Сб
-            </button>
-        </div>
+        <!-- Контент расписания -->
+        <div id="scheduleContainer">
 
-        <!-- Today Quick Jump Button & Day Label -->
-        <div class="flex items-center justify-between px-1">
-            <h2 id="active-day-title" class="text-lg font-semibold text-white tracking-tight">
-                Понедельник
-            </h2>
-            <button onclick="jumpToToday()" class="text-xs font-medium text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 bg-emerald-950/40 px-2.5 py-1 rounded-lg border border-emerald-800/40">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                Сегодня
-            </button>
-        </div>
+            <!-- ПОНЕДЕЛЬНИК -->
+            <div id="mon" class="day-content active">
+                <div class="lesson-card">
+                    <div class="lesson-time">08:00 - 09:35</div>
+                    <div class="subgroup-tag">1 неделя (ОИЗ)</div>
+                    <div class="lesson-name">Инженерная графика</div>
+                    <div class="lesson-details">
+                        <span>Практическое занятие • доц. Ким Ю.А.</span>
+                        <span>Ауд. 519, к. 8</span>
+                    </div>
+                </div>
 
-        <!-- Lessons Feed Container -->
-        <div id="lessons-container" class="space-y-3.5">
-            <!-- Dynamically populated -->
-        </div>
+                <div class="lesson-card">
+                    <div class="lesson-time">08:00 - 09:35</div>
+                    <div class="subgroup-tag">2 неделя (ОИЗ)</div>
+                    <div class="lesson-name">Математика</div>
+                    <div class="lesson-details">
+                        <span>Лекционное занятие • проф. Роговцов Н.Н.</span>
+                        <span>Ауд. 438, к. 1</span>
+                    </div>
+                </div>
 
+                <div class="lesson-card">
+                    <div class="lesson-time">11:40 - 13:15</div>
+                    <div class="subgroup-tag">1 неделя</div>
+                    <div class="lesson-name">Математика</div>
+                    <div class="lesson-details">
+                        <span>Практическое занятие • проф. Роговцов Н.Н.</span>
+                        <span>Ауд. 436, к. 1</span>
+                    </div>
+                </div>
+
+                <div class="lesson-card">
+                    <div class="lesson-time">11:40 - 13:15</div>
+                    <div class="subgroup-tag">2 неделя</div>
+                    <div class="lesson-name">Химия</div>
+                    <div class="lesson-details">
+                        <span>Практическое занятие • пр. Кречко, пр. Тишковская Е.А.</span>
+                        <span>Ауд. 510, 512, к. 11</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ВТОРНИК -->
+            <div id="tue" class="day-content">
+                <div class="lesson-card">
+                    <div class="lesson-time">11:40 - 13:15</div>
+                    <div class="lesson-name">Инженерная графика</div>
+                    <div class="lesson-details">
+                        <span>Практическое занятие</span>
+                        <span>Ауд. 518, к. 8</span>
+                    </div>
+                </div>
+
+                <div class="lesson-card">
+                    <div class="lesson-time">13:55 - 15:30</div>
+                    <div class="subgroup-tag">1 неделя</div>
+                    <div class="lesson-name">Введение в инженерное образование</div>
+                    <div class="lesson-details">
+                        <span>Лекционное занятие • проф. Карницкий Н.Б.</span>
+                        <span>Ауд. 1110, к. 21</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- СРЕДА -->
+            <div id="wed" class="day-content">
+                <div class="lesson-card">
+                    <div class="lesson-time">08:00 - 09:35</div>
+                    <div class="subgroup-tag">1 неделя</div>
+                    <div class="lesson-name">Инженерная графика</div>
+                    <div class="lesson-details">
+                        <span>Практическое занятие</span>
+                        <span>Ауд. 520, к. 8</span>
+                    </div>
+                </div>
+
+                <div class="lesson-card">
+                    <div class="lesson-time">08:00 - 09:35</div>
+                    <div class="subgroup-tag">2 неделя</div>
+                    <div class="lesson-name">История белорусской государственности</div>
+                    <div class="lesson-details">
+                        <span>Практическое занятие • доц. Альховик Н.К.</span>
+                        <span>Ауд. 417, к. 1</span>
+                    </div>
+                </div>
+
+                <div class="lesson-card">
+                    <div class="lesson-time">09:55 - 11:30</div>
+                    <div class="lesson-name">Информатика и интегрированные прикладные системы</div>
+                    <div class="lesson-details">
+                        <span>Лекционное занятие • ст.пр. Пронкевич Е.В.</span>
+                        <span>Ауд. 1110, к. 21</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ЧЕТВЕРГ -->
+            <div id="thu" class="day-content">
+                <div class="lesson-card">
+                    <div class="lesson-time">09:55 - 11:30</div>
+                    <div class="lesson-name">Математика</div>
+                    <div class="lesson-details">
+                        <span>Практическое занятие • проф. Роговцов Н.Н.</span>
+                        <span>Ауд. 422, к. 8</span>
+                    </div>
+                </div>
+
+                <div class="lesson-card">
+                    <div class="lesson-time">13:55 - 15:30</div>
+                    <div class="lesson-name">Материаловедение</div>
+                    <div class="lesson-details">
+                        <span>Лабораторное занятие • ст.пр. Миньков А.Л.</span>
+                        <span>Ауд. 11, к. 7</span>
+                    </div>
+                </div>
+
+                <div class="lesson-card">
+                    <div class="lesson-time">15:40 - 17:15</div>
+                    <div class="lesson-name">Информатика и интегрированные прикладные системы</div>
+                    <div class="lesson-details">
+                        <span>Лабораторное занятие • ст.пр. Пронкевич Е.В.</span>
+                        <span>Ауд. 714, к. 21</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ПЯТНИЦА -->
+            <div id="fri" class="day-content">
+                <div class="lesson-card">
+                    <div class="lesson-time">08:00 - 09:35</div>
+                    <div class="lesson-name">Английский язык</div>
+                    <div class="lesson-details">
+                        <span>Практическое занятие • пр. Коршун А.А.</span>
+                        <span>Ауд. 430, к. 18</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- СУББОТА -->
+            <div id="sat" class="day-content">
+                <div class="no-classes">В субботу занятий нет ☕</div>
+            </div>
+
+        </div>
     </div>
 
     <script>
-        if (window.Telegram && window.Telegram.WebApp) {
-            window.Telegram.WebApp.ready();
-            window.Telegram.WebApp.expand();
-            window.Telegram.WebApp.setBackgroundColor('#090a0f');
-            window.Telegram.WebApp.setHeaderColor('#090a0f');
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        function switchDay(dayId, element) {
+            document.querySelectorAll('.day-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.day-tab').forEach(el => el.classList.remove('active'));
+
+            document.getElementById(dayId).classList.add('active');
+            element.classList.add('active');
         }
-
-        // Full Schedule Data for BNTU Group 10608126
-        const SCHEDULE_DATA = [
-            // 0: Понедельник
-            {
-                dayIndex: 0,
-                dayName: "Понедельник",
-                lessons: [
-                    { timeStart: "08:00", timeEnd: "09:35", week: [1], type: "ОИЗ", title: "Инженерная графика", teacher: "доц. Ким Ю.А.", room: "а. 519 к. 8" },
-                    { timeStart: "08:00", timeEnd: "09:35", week: [2], type: "ОИЗ", title: "Математика", teacher: "проф. Роговцов Н.Н.", room: "а. 438 к. 1" },
-                    { timeStart: "09:55", timeEnd: "11:30", week: [1, 2], type: "Лекция", title: "Математика", teacher: "проф. Роговцов Н.Н.", room: "а. 437 к. 1" },
-                    { timeStart: "11:40", timeEnd: "13:15", week: [1], type: "Практика", title: "Математика", teacher: "проф. Роговцов Н.Н.", room: "а. 436 к. 1" },
-                    { timeStart: "11:40", timeEnd: "13:15", week: [2], type: "Практика", title: "Химия", teacher: "пр. Кречко, пр. Тишковская Е.А.", room: "а. 510, 512 к. 11" }
-                ]
-            },
-            // 1: Вторник
-            {
-                dayIndex: 1,
-                dayName: "Вторник",
-                lessons: [
-                    { timeStart: "08:00", timeEnd: "09:35", week: [1, 2], type: "Лекция", title: "Химия", teacher: "пр. Тишковская Е.А.", room: "а. 210 к. 6" },
-                    { timeStart: "09:55", timeEnd: "11:30", week: [1, 2], type: "Занятие", title: "Физическая культура", teacher: "ст.пр. Пильневич А.А., Слободняк Е.Н.", room: "Спорткомплекс" },
-                    { timeStart: "11:40", timeEnd: "13:15", week: [1, 2], type: "Практика", title: "Инженерная графика", teacher: "—", room: "а. 518 к. 8" },
-                    { timeStart: "13:55", timeEnd: "15:30", week: [1], type: "Лекция", title: "Введение в инженерное образование", teacher: "проф. Карницкий Н.Б.", room: "а. 1110 к. 21" }
-                ]
-            },
-            // 2: Среда
-            {
-                dayIndex: 2,
-                dayName: "Среда",
-                lessons: [
-                    { timeStart: "08:00", timeEnd: "09:35", week: [1], type: "Практика", title: "Инженерная графика", teacher: "—", room: "а. 520 к. 8" },
-                    { timeStart: "08:00", timeEnd: "09:35", week: [2], type: "Практика", title: "История белорусской государственности", teacher: "доц. Альховик Н.К.", room: "а. 417 к. 1" },
-                    { timeStart: "09:55", timeEnd: "11:30", week: [1, 2], type: "Лекция", title: "Информатика и ИПС", teacher: "ст.пр. Пронкевич Е.В.", room: "а. 1110 к. 21" },
-                    { timeStart: "11:40", timeEnd: "13:15", week: [2], type: "Лекция", title: "Математика", teacher: "проф. Роговцов Н.Н.", room: "а. 453 к. 1" }
-                ]
-            },
-            // 3: Четверг
-            {
-                dayIndex: 3,
-                dayName: "Четверг",
-                lessons: [
-                    { timeStart: "09:55", timeEnd: "11:30", week: [1, 2], type: "Практика", title: "Математика", teacher: "проф. Роговцов Н.Н.", room: "а. 422 к. 8" },
-                    { timeStart: "11:40", timeEnd: "13:15", week: [1, 2], type: "Лекция", title: "История белорусской государственности", teacher: "доц. Альховик Н.К.", room: "а. 310 к. 8" },
-                    {
-                        timeStart: "13:55", timeEnd: "15:30", week: [1, 2],
-                        isSplit: true,
-                        subgroups: [
-                            { groupLabel: "1 подгруппа", type: "Лаб", title: "Материаловедение", teacher: "ст.пр. Миньков А.Л.", room: "а. 11 к. 7" },
-                            { groupLabel: "2 подгруппа", type: "Лаб", title: "Информатика и ИПС", teacher: "ст.пр. Пронкевич Е.В.", room: "а. 714 к. 21" }
-                        ]
-                    },
-                    {
-                        timeStart: "15:40", timeEnd: "17:15", week: [1, 2],
-                        isSplit: true,
-                        subgroups: [
-                            { groupLabel: "1 подгруппа", type: "Лаб", title: "Информатика и ИПС", teacher: "ст.пр. Пронкевич Е.В.", room: "а. 714 к. 21" },
-                            { groupLabel: "2 подгруппа", type: "Лаб", title: "Материаловедение", teacher: "Филиппов", room: "а. 23 к. 7" }
-                        ]
-                    }
-                ]
-            },
-            // 4: Пятница
-            {
-                dayIndex: 4,
-                dayName: "Пятница",
-                lessons: [
-                    { timeStart: "08:00", timeEnd: "09:35", week: [1, 2], type: "Практика", title: "Английский язык", teacher: "пр. Коршун А.А.", room: "а. 430 к. 18" },
-                    { timeStart: "09:55", timeEnd: "11:30", week: [1, 2], type: "Занятие", title: "Физическая культура", teacher: "ст.пр. Пильневич А.А., Слободняк Е.Н.", room: "Спорткомплекс" },
-                    { timeStart: "11:40", timeEnd: "13:15", week: [2], type: "Лекция", title: "Химия", teacher: "пр. Тишковская Е.Л.", room: "а. 453 к. 1" }
-                ]
-            },
-            // 5: Суббота
-            {
-                dayIndex: 5,
-                dayName: "Суббота",
-                lessons: [
-                    { timeStart: "08:00", timeEnd: "09:35", week: [1, 2], type: "Лекция", title: "Материаловедение", teacher: "ст.пр. Миньков А.П.", room: "а. 310 к. 8" },
-                    { timeStart: "09:55", timeEnd: "11:30", week: [1, 2], type: "Лекция", title: "Инженерная графика", teacher: "доц. Ким Ю.А.", room: "а. 310 к. 8" },
-                    { timeStart: "11:40", timeEnd: "13:15", week: [1], type: "Лекция", title: "Коррупция и ее общественная опасность", teacher: "пр. Милинкевич К.А.", room: "а. 310 к. 8" },
-                    { timeStart: "11:40", timeEnd: "13:15", week: [2], type: "ОИЗ", title: "Инженерная графика", teacher: "доц. Ким Ю.А.", room: "а. 310 к. 8" }
-                ]
-            }
-        ];
-
-        let selectedWeek = 2;
-        let selectedDay = 0;
-
-        const REF_MONDAY_WEEK2 = new Date(2026, 9, 19);
-
-        function calculateCurrentWeek() {
-            const today = new Date();
-            const tempDate = new Date(today);
-            const day = tempDate.getDay();
-            const diffToMonday = (day === 0 ? -6 : 1) - day;
-            tempDate.setDate(tempDate.getDate() + diffToMonday);
-            tempDate.setHours(0,0,0,0);
-
-            const refDate = new Date(REF_MONDAY_WEEK2);
-            refDate.setHours(0,0,0,0);
-
-            const diffWeeks = Math.floor((tempDate - refDate) / (1000 * 60 * 60 * 24 * 7));
-            return (Math.abs(diffWeeks) % 2 === 0) ? 2 : 1;
-        }
-
-        function updateWeekUI() {
-            const btn1 = document.getElementById('btn-week-1');
-            const btn2 = document.getElementById('btn-week-2');
-
-            if (selectedWeek === 1) {
-                btn1.classList.add('active');
-                btn2.classList.remove('active');
-            } else {
-                btn2.classList.add('active');
-                btn1.classList.remove('active');
-            }
-
-            document.getElementById('current-week-indicator').innerText = `${selectedWeek} неделя`;
-        }
-
-        function updateDayPillsUI() {
-            for (let i = 0; i <= 5; i++) {
-                const pill = document.getElementById(`day-pill-${i}`);
-                if (!pill) continue;
-                if (i === selectedDay) {
-                    pill.classList.add('active');
-                } else {
-                    pill.classList.remove('active');
-                }
-            }
-        }
-
-        function renderLessons() {
-            const container = document.getElementById('lessons-container');
-            container.innerHTML = '';
-
-            const dayData = SCHEDULE_DATA.find(d => d.dayIndex === selectedDay);
-            document.getElementById('active-day-title').innerText = dayData ? dayData.dayName : "Занятия";
-
-            if (!dayData || !dayData.lessons || dayData.lessons.length === 0) {
-                container.innerHTML = `
-                    <div class="glass-card p-8 text-center space-y-2">
-                        <div class="inline-flex p-3 rounded-full bg-emerald-950/40 border border-emerald-800/30 text-emerald-400 mb-1">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                        </div>
-                        <h3 class="text-base font-medium text-white">Выходной день</h3>
-                        <p class="text-xs text-brandTextMuted">На этот день пар не запланировано.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            const filteredLessons = dayData.lessons.filter(l => l.week.includes(selectedWeek));
-
-            if (filteredLessons.length === 0) {
-                container.innerHTML = `
-                    <div class="glass-card p-8 text-center space-y-1">
-                        <p class="text-sm font-medium text-white">Пар на ${selectedWeek}-ю неделю нет</p>
-                        <p class="text-xs text-brandTextMuted">Отдыхайте или проверьте другую неделю.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            filteredLessons.forEach(lesson => {
-                const card = document.createElement('div');
-                card.className = "glass-card p-4 space-y-3";
-
-                if (lesson.isSplit) {
-                    let subgroupsHtml = lesson.subgroups.map(sub => `
-                        <div class="glass-card-emerald p-3 space-y-1">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs font-semibold text-emerald-300 uppercase tracking-wide">${sub.groupLabel}</span>
-                                <span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-900/60 text-emerald-200 border border-emerald-700/40">${sub.type}</span>
-                            </div>
-                            <h4 class="text-sm font-medium text-white leading-snug">${sub.title}</h4>
-                            <div class="flex items-center justify-between text-xs text-brandTextMuted pt-1">
-                                <span>${sub.teacher}</span>
-                                <span class="text-emerald-400 font-medium">${sub.room}</span>
-                            </div>
-                        </div>
-                    `).join('');
-
-                    card.innerHTML = `
-                        <div class="flex items-center justify-between border-b border-white/5 pb-2">
-                            <div class="flex items-center gap-2">
-                                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                <span class="text-sm font-semibold text-white">${lesson.timeStart} — ${lesson.timeEnd}</span>
-                            </div>
-                        </div>
-                        <div class="space-y-2">
-                            ${subgroupsHtml}
-                        </div>
-                    `;
-                } else {
-                    card.innerHTML = `
-                        <div class="flex items-center justify-between border-b border-white/5 pb-2.5">
-                            <div class="flex items-center gap-2">
-                                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                <span class="text-sm font-semibold text-white">${lesson.timeStart} — ${lesson.timeEnd}</span>
-                            </div>
-                            ${lesson.type ? `<span class="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-white/5 text-brandTextMuted border border-white/10">${lesson.type}</span>` : ''}
-                        </div>
-                        <div class="space-y-1">
-                            <h3 class="text-base font-semibold text-white leading-snug">${lesson.title}</h3>
-                            <div class="flex items-center justify-between text-xs text-brandTextMuted pt-1">
-                                <span>${lesson.teacher && lesson.teacher !== '—' ? lesson.teacher : ''}</span>
-                                <span class="text-emerald-400 font-medium flex items-center gap-1">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
-                                    ${lesson.room}
-                                </span>
-                            </div>
-                        </div>
-                    `;
-                }
-
-                container.appendChild(card);
-            });
-        }
-
-        function selectWeek(weekNum) {
-            selectedWeek = weekNum;
-            updateWeekUI();
-            renderLessons();
-        }
-
-        function selectDay(dayIdx) {
-            selectedDay = dayIdx;
-            updateDayPillsUI();
-            renderLessons();
-        }
-
-        function jumpToToday() {
-            const today = new Date();
-            let jsDay = today.getDay();
-            selectedDay = (jsDay === 0) ? 5 : jsDay - 1; // if Sunday, fallback to Saturday
-            if (selectedDay > 5) selectedDay = 5;
-
-            selectedWeek = calculateCurrentWeek();
-
-            updateWeekUI();
-            updateDayPillsUI();
-            renderLessons();
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            jumpToToday();
-        });
     </script>
 </body>
 </html>
