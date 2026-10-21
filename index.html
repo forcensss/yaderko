@@ -87,6 +87,13 @@
             box-shadow: 0 4px 20px rgba(5, 150, 105, 0.35);
         }
 
+        /* Подсветка "Выбрать дату" при фокусе нативного input поверх кнопки */
+        .date-picker-wrap:focus-within > .glass-button {
+            background: rgba(5, 150, 105, 0.15);
+            border-color: rgba(5, 150, 105, 0.5);
+            color: #d1fae5;
+        }
+
         .pill-day {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.06);
@@ -126,14 +133,19 @@
 
         <!-- Today / Select Date Buttons -->
         <div class="glass-card p-1.5 grid grid-cols-2 gap-1.5">
-            <button onclick="jumpToToday()" class="glass-button py-2.5 px-4 rounded-xl text-sm font-medium text-center">
+            <button id="btn-today" onclick="jumpToToday()" class="glass-button py-2.5 px-4 rounded-xl text-sm font-medium text-center">
                 Сегодня
             </button>
-            <button onclick="openDatePicker()" class="glass-button py-2.5 px-4 rounded-xl text-sm font-medium text-center">
-                Выбрать дату
-            </button>
+            <div class="relative date-picker-wrap">
+                <div class="glass-button py-2.5 px-4 rounded-xl text-sm font-medium text-center">
+                    Выбрать дату
+                </div>
+                <input type="date" id="hidden-date-input"
+                       class="absolute inset-0 w-full h-full opacity-0"
+                       style="cursor: pointer; -webkit-appearance: none; appearance: none; border: none; padding: 0;"
+                       onchange="onDateSelected(event)">
+            </div>
         </div>
-        <input type="date" id="hidden-date-input" class="hidden" onchange="onDateSelected(event)">
 
         <!-- Segmented Week Switcher -->
         <div class="glass-card p-1.5 grid grid-cols-2 gap-1.5">
@@ -312,6 +324,28 @@
             return calculateWeekForDate(new Date());
         }
 
+        // Индекс сегодняшнего дня (0..5 — пн..сб, 6 — воскресенье)
+        function getTodayDayIndex() {
+            const jsDay = new Date().getDay();
+            return (jsDay === 0) ? 6 : jsDay - 1;
+        }
+
+        // Смотрим ли мы сейчас расписание на сегодняшний день
+        function isViewingToday() {
+            return selectedDay === getTodayDayIndex()
+                && selectedWeek === calculateCurrentWeek();
+        }
+
+        function updateTodayButtonUI() {
+            const btn = document.getElementById('btn-today');
+            if (!btn) return;
+            if (isViewingToday()) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        }
+
         function updateWeekUI() {
             const btn1 = document.getElementById('btn-week-1');
             const btn2 = document.getElementById('btn-week-2');
@@ -465,39 +499,25 @@
         function selectWeek(weekNum) {
             selectedWeek = weekNum;
             updateWeekUI();
+            updateTodayButtonUI();
             renderLessons();
         }
 
         function selectDay(dayIdx) {
             selectedDay = dayIdx;
             updateDayPillsUI();
+            updateTodayButtonUI();
             renderLessons();
         }
 
         function jumpToToday() {
-            const today = new Date();
-            const jsDay = today.getDay();
-            selectedDay = (jsDay === 0) ? 6 : jsDay - 1;
+            selectedDay = getTodayDayIndex();
             selectedWeek = calculateCurrentWeek();
 
             updateWeekUI();
             updateDayPillsUI();
+            updateTodayButtonUI();
             renderLessons();
-        }
-
-        function openDatePicker() {
-            const input = document.getElementById('hidden-date-input');
-            // Устанавливаем сегодняшнюю дату как значение по умолчанию
-            const today = new Date();
-            const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const dd = String(today.getDate()).padStart(2, '0');
-            input.value = `${yyyy}-${mm}-${dd}`;
-            if (input.showPicker) {
-                input.showPicker();
-            } else {
-                input.click();
-            }
         }
 
         function onDateSelected(event) {
@@ -516,6 +536,7 @@
 
             updateWeekUI();
             updateDayPillsUI();
+            updateTodayButtonUI();
             renderLessons();
         }
 
